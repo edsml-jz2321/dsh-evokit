@@ -1,0 +1,5 @@
+adapter: ./adapter.py:ToyRules
+seed: 41
+options:
+  noise_seed: 0
+  noise_rate: 0.0

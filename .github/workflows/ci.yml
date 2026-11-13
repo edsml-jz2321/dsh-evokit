@@ -1,0 +1,80 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  core:
+    name: Core (${{ matrix.os }}, Python ${{ matrix.python }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ['3.11', '3.12']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: '0.11.21'
+          python-version: ${{ matrix.python }}
+      - run: uv sync --frozen --group dev
+      - name: Lint and format
+        run: |
+          uv run --frozen ruff check src tests examples scripts integrations
+          uv run --frozen ruff format --check src tests examples scripts integrations
+      - name: Verify HB is absent
+        run: uv run --frozen python -c "import importlib.util; assert importlib.util.find_spec('heavenbase') is None"
+      - name: Create short Windows test-temp parent
+        if: runner.os == 'Windows'
+        run: New-Item -ItemType Directory -Force C:/vt | Out-Null
+      - name: Core, HB-absent, and bundle unit tests
+        run: uv run --frozen pytest -q tests --basetemp=${{ runner.os == 'Windows' && 'C:/vt/ek' || '/tmp/ek' }} --junitxml=test-results.xml
+      - name: Package checks
+        run: |
+          uv build
+          uv run --frozen python scripts/check_package.py
+          npm pack ./integrations/dsh --ignore-scripts --pack-destination dist
+          uv run --frozen python integrations/dsh/check_package.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: core-${{ matrix.os }}-${{ matrix.python }}
+          path: test-results.xml
+      # Built DSH host/target smokes require a separately pinned DSH installation.
+      # CI deliberately runs only their unit tests; release acceptance uses Windows.
+
+  hb:
+    name: HB backend (Ubuntu, Python ${{ matrix.python }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.11', '3.12']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: '0.11.21'
+          python-version: ${{ matrix.python }}
+      - run: uv sync --frozen --group dev --extra hb
+      - name: Backend parity suite (private HB home configured by fixtures)
+        run: uv run --frozen --extra hb pytest -q tests --basetemp=.test-tmp --junitxml=hb-results.xml
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hb-ubuntu-${{ matrix.python }}
+          path: hb-results.xml

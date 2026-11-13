@@ -1,0 +1,14 @@
+[
+  {"id":"echo-case-01","payload":{"text":"first"},"group":"short"},
+  {"id":"echo-case-02","payload":{"text":"second"},"group":"short"},
+  {"id":"echo-case-03","payload":{"text":"third"},"group":"short"},
+  {"id":"echo-case-04","payload":{"text":"fourth"},"group":"short"},
+  {"id":"echo-case-05","payload":{"text":"fifth"},"group":"short"},
+  {"id":"echo-case-06","payload":{"text":"sixth"},"group":"short"},
+  {"id":"echo-case-07","payload":{"text":"a longer message"},"group":"long"},
+  {"id":"echo-case-08","payload":{"text":"another longer message"},"group":"long"},
+  {"id":"echo-case-09","payload":{"text":"one more message"},"group":"long"},
+  {"id":"echo-case-10","payload":{"text":"yet another message"},"group":"long"},
+  {"id":"echo-case-11","payload":{"text":"the next message"},"group":"long"},
+  {"id":"echo-case-12","payload":{"text":"the last message"},"group":"long"}
+]

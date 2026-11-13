@@ -1,0 +1,11 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "dsh-evokit",
+  "version": "0.1.5",
+  "description": "Domain-neutral self-evolution experiments, paired gates and lineage",
+  "keywords": [
+    "evolution",
+    "evaluation",
+    "experiments"
+  ]
+}

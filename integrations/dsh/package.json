@@ -1,0 +1,35 @@
+{
+  "name": "dsh-evokit",
+  "version": "0.1.5",
+  "type": "module",
+  "files": [
+    "cordis.patch.yml",
+    "improver.patch.yml",
+    "plugin.json",
+    "mcp.json",
+    "skills"
+  ],
+  "engines": {
+    "dsh": "0.2.2-rc.1"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "license": "MIT",
+  "author": "quei",
+  "description": "Measured self-improvement: paired experiments, noise-aware gates and sealed confirmation.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/edsml-jz2321/dsh-evokit.git",
+    "directory": "integrations/dsh"
+  },
+  "homepage": "https://github.com/edsml-jz2321/dsh-evokit#readme",
+  "keywords": [
+    "dsh-plugin",
+    "self-evolution",
+    "evaluation",
+    "mcp"
+  ]
+}

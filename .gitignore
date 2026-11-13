@@ -1,0 +1,14 @@
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+.evokit/
+dist/
+*.egg-info/
+.dp/
+.test-tmp/
+.publish/
+
+release/
+*.xml
+.scratch/

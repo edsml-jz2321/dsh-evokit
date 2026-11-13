@@ -1,0 +1,25 @@
+{
+  "format": 1,
+  "title": {"en": "evokit plugins", "zh": "evokit 插件"},
+  "description": {"en": "Measured self-improvement for DeepSeek Harness", "zh": "为 DeepSeek Harness 提供可测量的自进化"},
+  "plugins": [
+    {
+      "name": "dsh-evokit",
+      "title": {"en": "evokit", "zh": "evokit"},
+      "description": {"en": "Paired experiments, noise-aware gates and sealed confirmation", "zh": "配对实验、噪声感知门禁与密封确认"},
+      "icon": "icon.svg",
+      "author": "quei",
+      "homepage": "https://github.com/edsml-jz2321/dsh-evokit#readme",
+      "repository": {"url": "https://github.com/edsml-jz2321/dsh-evokit", "directory": "integrations/dsh"},
+      "metadata": {"keywords": ["dsh-plugin", "self-evolution", "evaluation", "mcp"]},
+      "versions": [
+        {
+          "version": "0.1.5",
+          "publishTimestamp": 0,
+          "source": {"type": "git", "url": "https://github.com/edsml-jz2321/dsh-evokit", "commit": "0000000000000000000000000000000000000000", "path": "integrations/dsh"},
+          "engines": {"dsh": "0.2.2-rc.1"}
+        }
+      ]
+    }
+  ]
+}

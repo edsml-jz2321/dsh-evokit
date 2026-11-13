@@ -1,0 +1,21 @@
+- insert:
+    - id: evokit-mcp
+      name: '@deepseek-ai/dsh-mcp-client'
+      config:
+        serverName: evokit
+        transport: stdio
+        command: !!js process.env.EVOKIT_MCP_COMMAND
+        args: [mcp]
+        cwd: !!js process.env.EVOKIT_WORKSPACE
+        startupTimeoutMs: 30000
+        toolCallTimeoutMs: 300000
+        failOnStartupError: true
+        reconnect:
+          enabled: false
+    - id: evokit-skills
+      name: '@deepseek-ai/dsh-skill-filesystem'
+      config:
+        providerName: evokit
+        includeDefaultRoots: false
+        customSkillDirs: !!js "[process.env.EVOKIT_SKILL_ROOT]"
+        watch: false

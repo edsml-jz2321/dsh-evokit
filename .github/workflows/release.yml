@@ -1,0 +1,37 @@
+name: Release artifacts
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: '0.11.21'
+          python-version: '3.12'
+      - run: uv sync --frozen --group dev
+      - name: Build from tagged source and verify package identity
+        run: |
+          uv run --frozen python -c "import os,tomllib,json; from pathlib import Path; v=tomllib.loads(Path('pyproject.toml').read_text())['project']['version']; assert os.environ['GITHUB_REF_NAME'] == 'v'+v; assert all(json.loads(Path(p).read_text())['version']==v for p in ['plugin.json','integrations/dsh/plugin.json','integrations/dsh/package.json'])"
+          uv build
+          uv run --frozen python scripts/check_package.py
+          npm pack ./integrations/dsh --ignore-scripts --pack-destination dist
+          uv run --frozen python integrations/dsh/check_package.py "dist/dsh-evokit-${GITHUB_REF_NAME#v}.tgz"
+          cd dist
+          sha256sum *.whl *.tar.gz *.tgz > SHA256SUMS
+          sha256sum --check SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ github.ref_name }}
+          path: dist/*
+          if-no-files-found: error

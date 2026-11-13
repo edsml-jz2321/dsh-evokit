@@ -1,0 +1,10 @@
+# The command protocol is language-neutral argv + JSON files, with no shell quoting.
+# This example uses Node.js with no packages/build. A native binary or
+# powershell -File command uses exactly the same protocol.
+editable: [prefix.txt]
+tasks: tasks.json
+command: [node, runner.mjs]
+scorer_version: echo-v1
+seed: 41
+budgets:
+  latency_ratio: 1.2
