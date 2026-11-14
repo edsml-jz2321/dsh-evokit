@@ -39,10 +39,7 @@
           "version": "0.1.5",
           "publishTimestamp": 1794572465,
           "source": {
-            "type": "git",
-            "url": "https://github.com/edsml-jz2321/dsh-evokit",
-            "commit": "8377d88c3bc0ca0804f7ef20394b6c30728af87c",
-            "path": "integrations/dsh"
+            "type": "npm"
           },
           "engines": {
             "dsh": "0.2.2-rc.1"
