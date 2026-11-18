@@ -45,6 +45,28 @@ diagnoses with `failure_cards(details=false)` to read a compact failure index;
 then request detailed pages only where needed. Pagination does not grant access
 to private confirmation records.
 
+## MCP metadata
+
+Each tool definition carries a plain description (purpose, when to use it and
+which sibling to use instead, side effects, result), a description and default
+for every parameter, and MCP annotations. `evokit tools` prints the same
+descriptions and schemas. The server also publishes short `instructions` that
+define scenario, version and arm and outline the improver loop. Opening a
+scenario for the first time, through any tool, creates its workspace and freezes
+the epoch; after that, read-only tools change no workspace file.
+
+| Annotation | Tools |
+| --- | --- |
+| Read-only (`readOnlyHint`) | scenario_describe, version_current, version_diff, run_status, run_results, compare_paired, proposal_list, ledger_history, meta_metrics, contract_read, records_query |
+| Writes, append-only | version_create, noise_estimate, proposal_create, gate_check, ledger_adopt, contract_record, ledger_revert |
+| Writes, idempotent (`idempotentHint`) | failure_cards and failures_similar (overwrite the stored card index), run_interleaved (a repeat resumes), confirm_adoption (a completed decision is returned again) |
+| Executes scenario tasks (`openWorldHint`) | run_launch, run_interleaved, confirm_adoption, final_measure |
+| Destructive (`destructiveHint`) | final_measure: it closes the epoch to further evolution |
+
+Writes append records and may move the current pointer; none rewrites history.
+Tasks run the scenario's own code, which may call external services and cost
+money; all other tools work on local state only.
+
 ## Scenario and versions
 
 | Tool | Arguments besides config | Result |
@@ -128,6 +150,8 @@ filter. For paired fixes or breaks, provide parent_run and `change: fix|break`.
 Each card has task_id, group, payload_summary, output, outcome, reason and
 trace_excerpt_pointer, unless the scenario overrides rendering. Cards are not
 silently sampled or paginated; read the whole index, then original traces.
+Each call also saves the rendered cards to the record store, overwriting
+identical entries, so that failures_similar can search them.
 
 `proposal` is validated against [proposal.schema.json](../src/evokit/proposal.schema.json):
 

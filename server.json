@@ -1,0 +1,36 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.edsml-jz2321/dsh-evokit",
+  "title": "evokit",
+  "description": "Measured self-improvement: paired experiments, noise-aware gates and sealed confirmation.",
+  "repository": {
+    "url": "https://github.com/edsml-jz2321/dsh-evokit",
+    "source": "github"
+  },
+  "version": "0.1.8",
+  "websiteUrl": "https://github.com/edsml-jz2321/dsh-evokit#readme",
+  "icons": [
+    {
+      "src": "https://edsml-jz2321.github.io/dsh-evokit/icon.svg",
+      "mimeType": "image/svg+xml"
+    }
+  ],
+  "packages": [
+    {
+      "registryType": "pypi",
+      "registryBaseUrl": "https://pypi.org",
+      "identifier": "dsh-evokit",
+      "version": "0.1.8",
+      "runtimeHint": "uvx",
+      "transport": {
+        "type": "stdio"
+      },
+      "packageArguments": [
+        {
+          "type": "positional",
+          "value": "mcp"
+        }
+      ]
+    }
+  ]
+}

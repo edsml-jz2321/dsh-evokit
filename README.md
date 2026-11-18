@@ -37,8 +37,8 @@ Run the last command from your scenario directory. `EVOKIT_MCP_COMMAND`, `EVOKIT
 Verified alternative: download the wheel, bundle and `SHA256SUMS` from [Releases](https://github.com/edsml-jz2321/dsh-evokit/releases), compare their SHA-256 hashes, then install the files:
 
 ```console
-uv tool install ./dsh_evokit-0.1.7-py3-none-any.whl
-dsh plugin --profile evokit add ./dsh-evokit-0.1.7.tgz
+uv tool install ./dsh_evokit-0.1.8-py3-none-any.whl
+dsh plugin --profile evokit add ./dsh-evokit-0.1.8.tgz
 dsh plugin --profile evokit list
 ```
 

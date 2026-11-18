@@ -1,5 +1,6 @@
 """The public bundle's native metadata and skill copies stay consistent."""
 
+import importlib.util
 import json
 import os
 import shutil
@@ -15,7 +16,7 @@ def test_bundle_metadata_and_skills():
     root = Path(__file__).resolve().parents[1]
     bundle = root / "integrations/dsh"
     package = json.loads((bundle / "package.json").read_text())
-    assert package["name"] == "dsh-evokit" and package["version"] == "0.1.7"
+    assert package["name"] == "dsh-evokit" and package["version"] == "0.1.8"
     assert not package.get("private", False)
     assert package["dsh"]["bundle"]["patch"] == "./cordis.patch.yml"
     assert package["engines"]["dsh"] == ">=0.2.2-rc.1 <0.3.0-0"
@@ -112,3 +113,31 @@ def test_bundle_defaults_evaluate_like_dsh(tmp_path, overridden):
         assert values["command"] == "evokit"
         assert Path(values["cwd"]).resolve() == workspace.resolve()
         assert values["skills"] == [str(profile / "node_modules" / "dsh-evokit" / "skills")]
+
+
+def test_registry_server_matches_package():
+    """server.json for the official MCP Registry names this exact package version."""
+    root = Path(__file__).resolve().parents[1]
+    version = tomllib.loads((root / "pyproject.toml").read_text())["project"]["version"]
+    server = json.loads((root / "server.json").read_text())
+    assert server["name"] == "io.github.edsml-jz2321/dsh-evokit"
+    assert server["version"] == version and len(server["description"]) <= 100
+    (package,) = server["packages"]
+    assert package["registryType"] == "pypi" and package["identifier"] == "dsh-evokit"
+    assert package["version"] == version and package["transport"] == {"type": "stdio"}
+    assert package["packageArguments"] == [{"type": "positional", "value": "mcp"}]
+    assert f"mcp-name: {server['name']}" in (root / "README.md").read_text()
+
+
+def test_release_notes_come_from_the_changelog_section():
+    root = Path(__file__).resolve().parents[1]
+    script = root / "scripts/release_notes.py"
+    version = tomllib.loads((root / "pyproject.toml").read_text())["project"]["version"]
+    spec = importlib.util.spec_from_file_location("release_notes", script)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    changelog = "# Changelog\n\n## v2.0.0\n\n- new\n\n## v1.0.0\n\n- old\n"
+    assert module.section(changelog, "2.0.0") == "- new"
+    assert module.section(changelog, "1.0.0") == "- old"
+    assert module.section(changelog, "3.0.0") == ""
+    assert module.section((root / "CHANGELOG.md").read_text(encoding="utf-8"), version)

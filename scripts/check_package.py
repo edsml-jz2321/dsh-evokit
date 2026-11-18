@@ -27,6 +27,9 @@ for name in (
     "integrations/dsh/package.json",
 ):
     assert json.loads((root / name).read_text())["version"] == version, name
+server = json.loads((root / "server.json").read_text())
+assert server["version"] == version, "server.json"
+assert [package["version"] for package in server["packages"]] == [version], "server.json packages"
 wheel = next((root / "dist").glob("dsh_evokit-*.whl"))
 with zipfile.ZipFile(wheel) as archive:
     entry_points = next(name for name in archive.namelist() if name.endswith("entry_points.txt"))

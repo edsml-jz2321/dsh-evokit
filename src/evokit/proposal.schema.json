@@ -1,18 +1,26 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "evokit v0 proposal input",
+  "description": "A falsifiable proposal: exactly these five fields, no others.",
   "type": "object",
   "additionalProperties": false,
   "required": ["targets", "mechanism", "predicted_effect", "falsification", "prior"],
   "properties": {
     "targets": {"type": "array", "minItems": 1, "uniqueItems": true,
-      "items": {"type": "string", "minLength": 1}},
-    "mechanism": {"type": "string", "minLength": 1, "pattern": "\\S"},
-    "predicted_effect": {"type": "number"},
-    "falsification": {"type": "string", "minLength": 1, "pattern": "\\S"},
+      "items": {"type": "string", "minLength": 1},
+      "description": "Editable file paths, relative with forward slashes, covering every file the candidate changes, for example [\"prompts/guide.txt\"]."},
+    "mechanism": {"type": "string", "minLength": 1, "pattern": "\\S",
+      "description": "The general mechanism the change applies, in one or two sentences."},
+    "predicted_effect": {"type": "number",
+      "description": "Predicted paired net score change on the selection split, in summed per-task score units, for example 3."},
+    "falsification": {"type": "string", "minLength": 1, "pattern": "\\S",
+      "description": "The measured result that would show the proposal is wrong, for example 'net <= 0'."},
     "prior": {"type": "object", "additionalProperties": false,
       "required": ["attempt", "difference"],
-      "properties": {"attempt": {"type": ["string", "null"]},
-        "difference": {"type": "string", "minLength": 1, "pattern": "\\S"}}}
+      "description": "Link to an earlier attempt of the same idea, if any.",
+      "properties": {"attempt": {"type": ["string", "null"],
+          "description": "Id of an earlier proposal this one revisits, or null for a first attempt."},
+        "difference": {"type": "string", "minLength": 1, "pattern": "\\S",
+          "description": "What differs from the prior attempt, or why this is the first."}}}
   }
 }

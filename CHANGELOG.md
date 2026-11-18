@@ -1,5 +1,20 @@
 # Changelog
 
+## v0.1.8
+
+- Rewrite every MCP tool definition for agents: each description says what the
+  tool does, when to use it and which sibling to use instead, its side effects
+  and what it returns. Every parameter now has a description, and defaults are
+  declared in the schemas. Tool behavior, names and accepted inputs are unchanged.
+- Declare MCP tool annotations (`readOnlyHint`, `destructiveHint`,
+  `idempotentHint`, `openWorldHint`); a test checks them against each tool's real
+  effect on the workspace. The MCP server also publishes short instructions.
+- Descriptions no longer start with a `[group]` tag; `evokit tools` still
+  reports the group.
+- Releases are automated: a `v*` tag publishes to PyPI, to npm through Trusted
+  Publishing and to a GitHub Release with the changelog section. Add `server.json`
+  for the official MCP Registry, kept at the package version.
+
 ## v0.1.7
 
 - Accept every DSH 0.2.x from 0.2.2-rc.1: the bundle's `engines.dsh` range is

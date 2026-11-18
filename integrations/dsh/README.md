@@ -39,12 +39,12 @@ Run the last command from your scenario directory. `EVOKIT_MCP_COMMAND`, `EVOKIT
 ## Install in an isolated profile
 
 Verified alternative from release files: download and verify
-`dsh_evokit-0.1.7-py3-none-any.whl`, `dsh-evokit-0.1.7.tgz` and `SHA256SUMS` from the
+`dsh_evokit-0.1.8-py3-none-any.whl`, `dsh-evokit-0.1.8.tgz` and `SHA256SUMS` from the
 [release page](https://github.com/edsml-jz2321/dsh-evokit/releases).
 From PowerShell, with an existing scenario at `./my-system`:
 
 ```powershell
-uv tool install ./dsh_evokit-0.1.7-py3-none-any.whl
+uv tool install ./dsh_evokit-0.1.8-py3-none-any.whl
 $env:EVOKIT_WORKSPACE = (Resolve-Path ./my-system).Path  # optional; defaults to the directory where dsh starts
 $env:DSH_HOME = Join-Path (Get-Location) 'private-dsh/home'
 $env:DSH_AGENTS_HOME = Join-Path (Get-Location) 'private-dsh/agents'
@@ -52,7 +52,7 @@ $env:HOME = $env:DSH_HOME
 $env:USERPROFILE = $env:DSH_HOME
 $env:DSH_TELEMETRY_DISABLED = '1'
 $env:DSH_TELEMETRY_MODE = 'DISABLED'
-dsh plugin --profile evokit add ./dsh-evokit-0.1.7.tgz
+dsh plugin --profile evokit add ./dsh-evokit-0.1.8.tgz
 dsh plugin --profile evokit list
 dsh --profile evokit --dump-config
 ```

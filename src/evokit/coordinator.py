@@ -13,6 +13,12 @@ from .privacy import PRIVATE_SPLITS
 from .storage import digest, file_lock
 
 NONEMPTY = {"type": "string", "minLength": 1, "pattern": r"\S"}
+
+
+def _text(description: str) -> dict[str, Any]:
+    return {**NONEMPTY, "description": description}
+
+
 CONTRACT_SCHEMA = {
     "type": "object",
     "additionalProperties": False,
@@ -25,16 +31,23 @@ CONTRACT_SCHEMA = {
         "stagnation_window",
     ],
     "properties": {
-        "objective": NONEMPTY,
+        "objective": _text("What the epoch optimizes, in plain words."),
         "guards": {
             "type": "object",
             "additionalProperties": False,
             "required": ["latency_ratio", "cost_ratio"],
+            "description": "Child/parent ratio limits that confirmation must stay within.",
             "properties": {
-                "latency_ratio": {"type": "number", "minimum": 0},
+                "latency_ratio": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Maximum latency ratio, for example 1.2.",
+                },
                 "cost_ratio": {
                     "type": "object",
                     "additionalProperties": {"type": "number", "minimum": 0},
+                    "description": "Maximum cost ratio per cost unit, for example "
+                    '{"money": 1.2}.',
                 },
             },
         },
@@ -42,26 +55,60 @@ CONTRACT_SCHEMA = {
             "type": "object",
             "additionalProperties": False,
             "required": ["min_net"],
-            "properties": {"min_net": {"type": "number", "maximum": 0}},
+            "description": "Keep rule for confirm_adoption.",
+            "properties": {
+                "min_net": {
+                    "type": "number",
+                    "maximum": 0,
+                    "description": "Minimum paired net on the confirmation split, at most 0; "
+                    "a negative value is a pre-chosen noise margin.",
+                }
+            },
         },
         "noise_plan": {
             "type": "object",
             "additionalProperties": False,
             "required": ["repeats", "method"],
-            "properties": {"repeats": {"type": "integer", "minimum": 2}, "method": NONEMPTY},
+            "description": "How incumbent noise will be measured.",
+            "properties": {
+                "repeats": {
+                    "type": "integer",
+                    "minimum": 2,
+                    "description": "Repeats of the incumbent arm, at least 2.",
+                },
+                "method": _text("Method name, for example paired flip rate and net spread."),
+            },
         },
         "budget": {
             "type": "object",
             "additionalProperties": False,
             "required": ["unit", "total", "per_generation"],
+            "description": "Spending plan; recorded for META, not enforced by a scheduler.",
             "properties": {
-                "unit": NONEMPTY,
-                "total": {"type": "number", "minimum": 0},
-                "per_generation": {"type": "number", "minimum": 0},
+                "unit": _text("Cost unit name reported by the scenario, for example money."),
+                "total": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Total budget for the epoch.",
+                },
+                "per_generation": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Budget per generation.",
+                },
             },
         },
-        "stagnation_window": {"type": "integer", "minimum": 1},
-        "confirmation_wear_budget": {"type": "integer", "minimum": 1, "default": 4},
+        "stagnation_window": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Generations without adoption after which META stops.",
+        },
+        "confirmation_wear_budget": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 4,
+            "description": "Maximum confirmation openings in this epoch. Default 4.",
+        },
     },
 }
 

@@ -1,11 +1,22 @@
 name: Release artifacts
 
+# Pushing a tag vX.Y.Z builds once, then publishes the same files to PyPI, npm
+# and a GitHub Release. The three publish jobs are independent: each one fails
+# on its own and a failure marks the whole run failed. Every publish job can be
+# rerun safely: PyPI skips files that already exist, npm skips a version that is
+# already published with the same tarball, and the GitHub Release is updated in
+# place instead of created twice.
+
 on:
   push:
     tags: ['v*']
 
 permissions:
   contents: read
+
+concurrency:
+  group: release-${{ github.ref_name }}
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -22,7 +33,8 @@ jobs:
       - run: uv sync --frozen --group dev
       - name: Build from tagged source and verify package identity
         run: |
-          uv run --frozen python -c "import os,tomllib,json; from pathlib import Path; v=tomllib.loads(Path('pyproject.toml').read_text())['project']['version']; assert os.environ['GITHUB_REF_NAME'] == 'v'+v; assert all(json.loads(Path(p).read_text())['version']==v for p in ['plugin.json','integrations/dsh/plugin.json','integrations/dsh/package.json'])"
+          uv run --frozen python -c "import os,tomllib,json; from pathlib import Path; v=tomllib.loads(Path('pyproject.toml').read_text())['project']['version']; assert os.environ['GITHUB_REF_NAME'] == 'v'+v; assert all(json.loads(Path(p).read_text())['version']==v for p in ['plugin.json','package.json','server.json','integrations/dsh/plugin.json','integrations/dsh/package.json'])"
+          uv run --frozen python scripts/release_notes.py "${GITHUB_REF_NAME#v}" > /dev/null
           uv build
           uv run --frozen python scripts/check_package.py
           npm pack ./integrations/dsh --ignore-scripts --pack-destination dist
@@ -56,3 +68,79 @@ jobs:
           find dist -type f ! -name '*.whl' ! -name '*.tar.gz' -delete
           ls -l dist
       - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          skip-existing: true
+
+  publish-npm:
+    # npm Trusted Publishing (OIDC): no token and no NODE_AUTH_TOKEN. npm trusts
+    # this workflow file in this repository, running in the `npm` environment.
+    # Provenance is attached automatically for a public repository and package.
+    # No checkout: the tarball's own package.json is the only manifest present.
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: npm
+      url: https://www.npmjs.com/package/dsh-evokit
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-${{ github.ref_name }}
+          path: dist
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          registry-url: https://registry.npmjs.org
+      - name: Use npm 11.5.1 or later (required for trusted publishing)
+        run: |
+          if ! node -e "const [a,b,c]=process.argv[1].split('.').map(Number); process.exit(a>11||(a===11&&(b>5||(b===5&&c>=1)))?0:1)" "$(npm --version)"; then
+            npm install --global npm@11
+          fi
+          npm --version
+      - name: Publish the built DSH bundle
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          tarball="dist/dsh-evokit-${version}.tgz"
+          test -f "$tarball"
+          cd dist
+          sha256sum --check --ignore-missing SHA256SUMS
+          cd ..
+          local_integrity="sha512-$(openssl dgst -sha512 -binary "$tarball" | base64 -w0)"
+          published="$(npm view "dsh-evokit@${version}" dist.integrity 2>/dev/null || true)"
+          if [ -n "$published" ]; then
+            if [ "$published" = "$local_integrity" ]; then
+              echo "dsh-evokit@${version} is already published with this tarball; skipping."
+              exit 0
+            fi
+            echo "::error::dsh-evokit@${version} is already published with a different tarball."
+            exit 1
+          fi
+          npm publish "$tarball" --access public
+
+  github-release:
+    # Glama's Auto-Release rebuilds the server on every GitHub release.
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-${{ github.ref_name }}
+          path: dist
+      - name: Create or update the GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          python3 scripts/release_notes.py "$version" > release-notes.md
+          files=(dist/dsh_evokit-"${version}"-py3-none-any.whl dist/dsh_evokit-"${version}".tar.gz dist/dsh-evokit-"${version}".tgz dist/SHA256SUMS)
+          ls -l "${files[@]}"
+          if gh release view "$GITHUB_REF_NAME" > /dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" "${files[@]}" --clobber
+            gh release edit "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" --notes-file release-notes.md --draft=false --latest
+          else
+            gh release create "$GITHUB_REF_NAME" "${files[@]}" --verify-tag --title "$GITHUB_REF_NAME" --notes-file release-notes.md --latest
+          fi
