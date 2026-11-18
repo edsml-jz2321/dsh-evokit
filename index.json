@@ -1,23 +1,19 @@
 {
   "format": 1,
   "title": {
-    "en": "evokit plugins",
-    "zh": "evokit 插件"
+    "en": "evokit plugins"
   },
   "description": {
-    "en": "Measured self-improvement for DeepSeek Harness",
-    "zh": "为 DeepSeek Harness 提供可测量的自进化"
+    "en": "Measured self-improvement for DeepSeek Harness"
   },
   "plugins": [
     {
       "name": "dsh-evokit",
       "title": {
-        "en": "evokit",
-        "zh": "evokit"
+        "en": "evokit"
       },
       "description": {
-        "en": "Paired experiments, noise-aware gates and sealed confirmation",
-        "zh": "配对实验、噪声感知门禁与密封确认"
+        "en": "Paired experiments, noise-aware gates and sealed confirmation"
       },
       "icon": "icon.svg",
       "author": "quei",
