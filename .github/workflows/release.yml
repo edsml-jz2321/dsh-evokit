@@ -118,7 +118,7 @@ jobs:
             echo "::error::dsh-evokit@${version} is already published with a different tarball."
             exit 1
           fi
-          npm publish "$tarball" --access public
+          npm publish "./$tarball" --access public
 
   github-release:
     # Glama's Auto-Release rebuilds the server on every GitHub release.
