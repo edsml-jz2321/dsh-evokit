@@ -105,7 +105,7 @@ CONFIG = string(
     "started with --config rejects any other path."
 )
 VERSION = "64-character lowercase SHA-256 version id, as returned by version_create"
-RUN_ID = "Run id: 1 to 80 letters, digits, `_` or `-`, starting with a letter or digit"
+RUN_ID = "Run ids are 1 to 80 letters, digits, `_` or `-`, starting with a letter or digit"
 REPEATS = integer("Times each task runs, at least 1. Default 1.", 1, default=1)
 OFFSET = integer("Zero-based index of the first item to return. Default 0.", 0, default=0)
 LIMIT = integer("Maximum items to return, at least 1. Omit to return all remaining items.", 1)
@@ -197,8 +197,8 @@ TOOLS = (
                 False,
             ),
             "run_id": string(
-                f"{RUN_ID}. Omit for a new random id; pass an existing id with identical "
-                "parameters to resume that arm."
+                "Arm name. Omit for a new random id; pass an existing id with identical "
+                f"parameters to resume that arm. {RUN_ID}."
             ),
             "wait": boolean(
                 "Block until every task finishes instead of returning at once. Default false.",
@@ -244,7 +244,7 @@ TOOLS = (
         "completed and expected result counts, and execution errors. Use it to poll a detached "
         "run_launch; use run_results for the task rows. Read-only. Returns {run_id, version, "
         "split, state, completed, expected, errors}.",
-        {"run_id": string(f"{RUN_ID}, as returned by run_launch or named in run_interleaved.")},
+        {"run_id": string("Run id, as returned by run_launch or named in run_interleaved.")},
         ("run_id",),
     ),
     Tool(
@@ -255,7 +255,7 @@ TOOLS = (
         "for failures only and compare_paired for parent-versus-child deltas. Read-only; "
         "partial while the arm is running. Returns an array in stable order.",
         {
-            "run_id": string(f"{RUN_ID} of a diagnosis or selection arm."),
+            "run_id": string("Run id of a diagnosis or selection arm."),
             "offset": OFFSET,
             "limit": LIMIT,
         },
@@ -270,8 +270,8 @@ TOOLS = (
         "Both arms must be complete, error-free and match on tasks, split, repeats and anchors. "
         "Read-only. Returns the comparison object.",
         {
-            "parent_run": string(f"{RUN_ID} of the parent (incumbent) arm."),
-            "child_run": string(f"{RUN_ID} of the candidate arm."),
+            "parent_run": string("Run id of the parent (incumbent) arm."),
+            "child_run": string("Run id of the candidate arm."),
             "aggregation": aggregation(PAIR_AGGREGATION),
         },
         ("parent_run", "child_run", "aggregation"),
@@ -284,7 +284,7 @@ TOOLS = (
         "selection arm of the current version with at least two repeats; use compare_paired "
         "for candidate effects. Appends a noise record to the ledger. Returns noise_id, "
         "per-task flip rates, net spread, threshold and method; pass noise_id to gate_check.",
-        {"run_id": string(f"{RUN_ID} of a complete selection arm of the current base.")},
+        {"run_id": string("Run id of a complete selection arm of the current base.")},
         ("run_id",),
         writes(),
     ),
@@ -299,9 +299,9 @@ TOOLS = (
         "cards to the record store for later search, overwriting identical entries; nothing "
         "else changes. Returns an array.",
         {
-            "run_id": string(f"{RUN_ID} of the arm to read."),
+            "run_id": string("Run id of the arm to read."),
             "group": string("Return only cards of this exact task group."),
-            "parent_run": string(f"{RUN_ID} of the parent arm to pair with; required by change."),
+            "parent_run": string("Run id of the parent arm to pair with; required by change."),
             "change": {
                 "type": "string",
                 "enum": ["fix", "break"],
@@ -358,16 +358,17 @@ TOOLS = (
         "and candidate, cost and latency budgets, scenario quality guards and the recorded "
         "noise threshold. Use it after compare_paired looks promising; use ledger_adopt "
         "(operator profile) to act on a passing verdict, because this tool never changes the "
-        "current base. Appends one verdict record per call. Returns {id, verdict, reasons, threshold, comparison, secondary_guards} with "
+        "current base. Appends one verdict record per call. Returns {id, verdict, reasons, "
+        "threshold, comparison, secondary_guards} with "
         "verdict `promote` (net above noise), `adopt-no-harm` (net >= 0 with a rationale) or "
         "`reject`.",
         {
             "proposal_id": string("Proposal id from proposal_create for the candidate."),
             "parent_run": string(
-                f"{RUN_ID} of a complete, non-smoke selection arm of the proposal's parent."
+                "Run id of a complete, non-smoke selection arm of the proposal's parent."
             ),
             "child_run": string(
-                f"{RUN_ID} of a complete, non-smoke selection arm of the proposal's candidate, "
+                "Run id of a complete, non-smoke selection arm of the proposal's candidate, "
                 "on the same tasks and repeats."
             ),
             "noise_id": string("noise_id from noise_estimate on this parent in this epoch."),
@@ -517,7 +518,7 @@ HB_TOOLS = (
                 "description": "Exact outcome score, 0 to 1.",
             },
             "version": string(f"Version that produced the result: {VERSION}."),
-            "run_id": string(f"{RUN_ID}."),
+            "run_id": string("Exact run id."),
             "epoch": string("Epoch id, as reported by scenario_describe."),
             "proposal": string("Proposal id; restricts to that proposal's candidate version."),
             "generation": integer(
