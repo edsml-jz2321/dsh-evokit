@@ -26,33 +26,39 @@ that is safe to share. Record user-visible changes in CHANGELOG.md.
 
 ## Releasing
 
+Releases are fully automatic from a tag.
+
 1. Bump the version in pyproject.toml, uv.lock, both plugin.json files, both
    package.json files and server.json, and add a `## vX.Y.Z` CHANGELOG section.
    `scripts/check_package.py` and the tests refuse mismatched versions.
 2. Push the tag `vX.Y.Z`. `release.yml` builds the wheel, sdist and DSH bundle
-   once, then, in three independent jobs:
+   once, then publishes them:
    - `publish-pypi` uploads the wheel and sdist to PyPI (Trusted Publishing,
      environment `pypi`);
+   - `publish-mcp-registry` runs after `publish-pypi`: it waits until PyPI serves
+     the version with its `mcp-name` marker, then publishes server.json to the
+     official MCP Registry with a pinned, checksum-verified `mcp-publisher` and
+     GitHub OIDC login;
    - `publish-npm` publishes the built `dsh-evokit-X.Y.Z.tgz` to npm (Trusted
      Publishing, environment `npm`, npm 11.5.1 or later, provenance attached);
    - `github-release` creates the GitHub Release with the three artifacts,
      SHA256SUMS and the tag's CHANGELOG section, marked latest. Glama's
      Auto-Release rebuilds its listing from each GitHub release.
-   No token is stored for any of them. A failed job fails the run; rerunning it
-   is safe (existing PyPI files and an identical npm version are skipped, and an
-   existing GitHub Release is updated in place).
-3. Publish server.json to the official MCP Registry by hand, after PyPI has the
-   new version: `mcp-publisher login github`, then `mcp-publisher publish` in
-   the repository root.
 
-One-time setup:
+No token or secret is stored. A failed job fails the run without affecting the
+others' results, and rerunning it is safe: PyPI skips files that exist, npm skips
+a version already published with the same tarball, an existing GitHub Release is
+updated in place, and a version already in the MCP Registry is skipped.
+
+One-time setup (done for this repository):
 
 - GitHub environments `pypi` and `npm`, each with a deployment rule limited to
   tags matching `v*`.
 - PyPI trusted publisher for `dsh-evokit`: owner `edsml-jz2321`, repository
   `dsh-evokit`, workflow `release.yml`, environment `pypi`.
-- npm trusted publisher for `dsh-evokit` (package settings, Trusted publishing,
-  GitHub Actions): organization or user `edsml-jz2321`, repository `dsh-evokit`,
-  workflow filename `release.yml`, environment `npm`, with `npm publish`
-  allowed. Values are case-sensitive and npm validates them only at publish
-  time.
+- npm trusted publisher for `dsh-evokit` (GitHub Actions): `edsml-jz2321`,
+  repository `dsh-evokit`, workflow `release.yml`, environment `npm`, allowed to
+  publish and stage-publish. Values are case-sensitive and npm validates them
+  only at publish time.
+- The MCP Registry needs no setup: GitHub OIDC login from this repository may
+  publish names under `io.github.edsml-jz2321/`.

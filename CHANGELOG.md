@@ -12,8 +12,8 @@
 - Descriptions no longer start with a `[group]` tag; `evokit tools` still
   reports the group.
 - Releases are automated: a `v*` tag publishes to PyPI, to npm through Trusted
-  Publishing and to a GitHub Release with the changelog section. Add `server.json`
-  for the official MCP Registry, kept at the package version.
+  Publishing, to a GitHub Release with the changelog section, and to the official
+  MCP Registry. Add `server.json` for the registry, kept at the package version.
 
 ## v0.1.7
 

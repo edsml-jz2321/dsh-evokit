@@ -141,3 +141,23 @@ def test_release_notes_come_from_the_changelog_section():
     assert module.section(changelog, "1.0.0") == "- old"
     assert module.section(changelog, "3.0.0") == ""
     assert module.section((root / "CHANGELOG.md").read_text(encoding="utf-8"), version)
+
+
+def test_release_workflow_publishes_everything_from_one_build():
+    root = Path(__file__).resolve().parents[1]
+    jobs = yaml.safe_load((root / ".github/workflows/release.yml").read_text())["jobs"]
+    needs = {name: job.get("needs") for name, job in jobs.items()}
+    assert needs == {
+        "build": None,
+        "publish-pypi": "build",
+        "publish-npm": "build",
+        "github-release": "build",
+        "publish-mcp-registry": "publish-pypi",
+    }
+    for name in ("publish-pypi", "publish-npm", "publish-mcp-registry"):
+        assert jobs[name]["permissions"]["id-token"] == "write", name
+    assert jobs["publish-pypi"]["environment"]["name"] == "pypi"
+    assert jobs["publish-npm"]["environment"]["name"] == "npm"
+    assert jobs["github-release"]["permissions"] == {"contents": "write"}
+    npm = "\n".join(step.get("run", "") for step in jobs["publish-npm"]["steps"])
+    assert "npm publish" in npm and "NODE_AUTH_TOKEN" not in npm

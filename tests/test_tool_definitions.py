@@ -83,9 +83,7 @@ def test_annotations_match_workspace_side_effects(tmp_path):
     shutil.copytree(ROOT / "examples/toy-rules", root)
     config = root / "scenario.yaml"
     with config.open("a", encoding="utf-8", newline="\n") as stream:
-        stream.write(
-            "splits: {diagnosis: 0.3, selection: 0.3, confirmation: 0.2, final: 0.2}\n"
-        )
+        stream.write("splits: {diagnosis: 0.3, selection: 0.3, confirmation: 0.2, final: 0.2}\n")
     checked = set()
 
     def call(name, **arguments):
@@ -135,6 +133,9 @@ def test_annotations_match_workspace_side_effects(tmp_path):
         },
     )
     call("proposal_list")
+    # A first selection arm fills the shared stage-1 replay cache, so both
+    # interleaved arms below replay it and their cost ratio stays within budget.
+    call("run_launch", version=base, run_id="warm-1", repeats=2, workers=2, wait=True)
     call("run_interleaved", arms={"parent-1": base, "child-1": child}, repeats=2, workers=2)
     noise = call("noise_estimate", run_id="parent-1")
     call("compare_paired", parent_run="parent-1", child_run="child-1", aggregation="majority")

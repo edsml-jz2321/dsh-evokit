@@ -1,11 +1,11 @@
 name: Release artifacts
 
 # Pushing a tag vX.Y.Z builds once, then publishes the same files to PyPI, npm
-# and a GitHub Release. The three publish jobs are independent: each one fails
-# on its own and a failure marks the whole run failed. Every publish job can be
-# rerun safely: PyPI skips files that already exist, npm skips a version that is
-# already published with the same tarball, and the GitHub Release is updated in
-# place instead of created twice.
+# and a GitHub Release, and server.json to the official MCP Registry after PyPI.
+# Each publish job fails on its own and any failure marks the whole run failed.
+# Every publish job can be rerun safely: PyPI skips files that already exist,
+# npm skips a version already published with the same tarball, the GitHub
+# Release is updated in place, and a version already in the registry is skipped.
 
 on:
   push:
@@ -144,3 +144,66 @@ jobs:
           else
             gh release create "$GITHUB_REF_NAME" "${files[@]}" --verify-tag --title "$GITHUB_REF_NAME" --notes-file release-notes.md --latest
           fi
+
+  publish-mcp-registry:
+    # The official MCP Registry checks package ownership against the PyPI long
+    # description (`mcp-name:` marker), so this waits for publish-pypi and for
+    # PyPI to serve the version. GitHub OIDC login grants io.github.<owner>/*.
+    # The registry refuses a duplicate version, so a rerun skips a version that
+    # is already listed.
+    needs: publish-pypi
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      MCP_PUBLISHER_VERSION: v1.8.1
+      # sha256 of mcp-publisher_linux_amd64.tar.gz in that release's checksums file.
+      MCP_PUBLISHER_SHA256: a06c9096dcb9727c13555b6be26c7effa707b01f06a4c561ba7a3635443cf2cc
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check that server.json names the tagged version
+        run: |
+          python3 -c "import json,os; s=json.load(open('server.json')); v=os.environ['GITHUB_REF_NAME'][1:]; assert s['version']==v and [p['version'] for p in s['packages']]==[v], s"
+      - name: Install the pinned mcp-publisher
+        run: |
+          set -euo pipefail
+          archive=mcp-publisher_linux_amd64.tar.gz
+          curl --fail --location --silent --show-error --output "$archive" \
+            "https://github.com/modelcontextprotocol/registry/releases/download/${MCP_PUBLISHER_VERSION}/${archive}"
+          echo "${MCP_PUBLISHER_SHA256}  ${archive}" | sha256sum --check
+          tar xzf "$archive" mcp-publisher
+          rm -f "$archive"
+      - name: Wait until PyPI serves the version with its mcp-name marker
+        run: |
+          python3 - <<'PY'
+          import json, os, time, urllib.request
+          version = os.environ["GITHUB_REF_NAME"][1:]
+          name = json.load(open("server.json"))["name"]
+          url = f"https://pypi.org/pypi/dsh-evokit/{version}/json"
+          for attempt in range(60):
+              try:
+                  with urllib.request.urlopen(url, timeout=30) as response:
+                      if f"mcp-name: {name}" in json.load(response)["info"]["description"]:
+                          print(f"PyPI serves dsh-evokit {version} with the mcp-name marker")
+                          break
+                      print("PyPI description lacks the mcp-name marker")
+              except Exception as error:
+                  print(f"attempt {attempt + 1}: {error}")
+              time.sleep(20)
+          else:
+              raise SystemExit(f"PyPI did not serve dsh-evokit {version} with the marker in time")
+          PY
+      - name: Publish server.json unless this version is already listed
+        run: |
+          set -euo pipefail
+          version="${GITHUB_REF_NAME#v}"
+          name="$(python3 -c "import json; print(json.load(open('server.json'))['name'])")"
+          listed="https://registry.modelcontextprotocol.io/v0.1/servers/${name/\//%2F}/versions/${version}"
+          code="$(curl --silent --output /dev/null --write-out '%{http_code}' "$listed")"
+          if [ "$code" = "200" ]; then
+            echo "${name} ${version} is already in the MCP Registry; skipping."
+            exit 0
+          fi
+          ./mcp-publisher login github-oidc
+          ./mcp-publisher publish server.json
