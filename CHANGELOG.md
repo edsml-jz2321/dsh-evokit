@@ -1,5 +1,24 @@
 # Changelog
 
+## v0.1.7
+
+- Accept every DSH 0.2.x from 0.2.2-rc.1: the bundle's `engines.dsh` range is
+  now `>=0.2.2-rc.1 <0.3.0-0` instead of the exact `0.2.2-rc.1`. DSH matches
+  ranges with prereleases included, so `<0.3.0-0` keeps 0.3.0 prereleases out.
+  Install, listing, configuration dump and MCP tool and skill registration were checked on DSH
+  0.2.2-rc.1 and 0.2.2-rc.4; the 0.1.6 bundle is refused on 0.2.2-rc.4.
+- `EVOKIT_MCP_COMMAND`, `EVOKIT_WORKSPACE` and `EVOKIT_SKILL_ROOT` are optional and default
+  to `evokit` on PATH, the directory where DSH starts and the bundle's own `skills` folder.
+- The tool inspector overlay also checks that the `onboard`, `evolve` and
+  `meta` skills are registered, and falls back to `evokit` on PATH.
+- Lead both READMEs with what evokit does, how adoption is gated, the
+  documented BFCL pilot result and the shortest install path. Add the MCP
+  Registry ownership marker to the PyPI description.
+- Add a `dsh-evokit` console command, identical to `evokit`, so `uvx dsh-evokit mcp`
+  starts the MCP server.
+- Add a root `package.json` declaring the same DSH bundle, so plugin catalogs and
+  Git installs detect it; npm packages are still published from `integrations/dsh`.
+
 ## v0.1.6
 
 - List the author as quei. Documentation and package metadata are English only.
