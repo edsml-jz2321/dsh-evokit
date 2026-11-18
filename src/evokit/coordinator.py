@@ -46,8 +46,7 @@ CONTRACT_SCHEMA = {
                 "cost_ratio": {
                     "type": "object",
                     "additionalProperties": {"type": "number", "minimum": 0},
-                    "description": "Maximum cost ratio per cost unit, for example "
-                    '{"money": 1.2}.',
+                    "description": 'Maximum cost ratio per cost unit, for example {"money": 1.2}.',
                 },
             },
         },

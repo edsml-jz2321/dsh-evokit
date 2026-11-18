@@ -531,9 +531,7 @@ HB_TOOLS = (
                 "description": "Two version ids; return their results for tasks whose mean "
                 "outcome differs between them.",
             },
-            "limit": integer(
-                "Maximum rows, 1 to 1000. Default 100.", 1, maximum=1000, default=100
-            ),
+            "limit": integer("Maximum rows, 1 to 1000. Default 100.", 1, maximum=1000, default=100),
         },
     ),
     Tool(

@@ -44,11 +44,18 @@ Releases are fully automatic from a tag.
    - `github-release` creates the GitHub Release with the three artifacts,
      SHA256SUMS and the tag's CHANGELOG section, marked latest. Glama's
      Auto-Release rebuilds its listing from each GitHub release.
+   - `update-dsh-index` runs after `publish-npm`: it reads the npm publish
+     time, points the gh-pages `index.json` (the published DSH plugin index) at
+     the new version, validates it with DSH's format-1 validator, pushes
+     gh-pages, requests a Pages build and waits until
+     https://edsml-jz2321.github.io/dsh-evokit/index.json serves the version.
+     `market/index.json` on main is only the template; CI never pushes to main.
 
 No token or secret is stored. A failed job fails the run without affecting the
 others' results, and rerunning it is safe: PyPI skips files that exist, npm skips
 a version already published with the same tarball, an existing GitHub Release is
-updated in place, and a version already in the MCP Registry is skipped.
+updated in place, a version already in the MCP Registry is skipped, and an
+index that already lists the version is left unchanged.
 
 One-time setup (done for this repository):
 

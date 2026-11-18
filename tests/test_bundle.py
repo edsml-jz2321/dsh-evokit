@@ -153,11 +153,38 @@ def test_release_workflow_publishes_everything_from_one_build():
         "publish-npm": "build",
         "github-release": "build",
         "publish-mcp-registry": "publish-pypi",
+        "update-dsh-index": "publish-npm",
     }
     for name in ("publish-pypi", "publish-npm", "publish-mcp-registry"):
         assert jobs[name]["permissions"]["id-token"] == "write", name
     assert jobs["publish-pypi"]["environment"]["name"] == "pypi"
     assert jobs["publish-npm"]["environment"]["name"] == "npm"
     assert jobs["github-release"]["permissions"] == {"contents": "write"}
+    assert jobs["update-dsh-index"]["permissions"] == {"contents": "write", "pages": "write"}
     npm = "\n".join(step.get("run", "") for step in jobs["publish-npm"]["steps"])
     assert "npm publish" in npm and "NODE_AUTH_TOKEN" not in npm
+
+
+def test_market_update_changes_only_the_version_entry():
+    root = Path(__file__).resolve().parents[1]
+    spec = importlib.util.spec_from_file_location("update_market", root / "scripts/update_market.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    template = (root / "market/index.json").read_text(encoding="utf-8")
+    engines = json.loads((root / "integrations/dsh/package.json").read_text())["engines"]["dsh"]
+    updated = module.update(template, "9.8.7", 1795000000, engines)
+    before, after = json.loads(template), json.loads(updated)
+    (entry,) = after["plugins"][0].pop("versions")
+    before["plugins"][0].pop("versions")
+    assert before == after
+    assert entry == {
+        "version": "9.8.7",
+        "publishTimestamp": 1795000000,
+        "source": {"type": "npm"},
+        "engines": {"dsh": engines},
+    }
+    assert updated.isascii() and module.update(updated, "9.8.7", 1795000000, engines) == updated
+    with pytest.raises(ValueError):
+        module.update(template.replace("\n", "\r\n"), "9.8.7", 1795000000, engines)
+    with pytest.raises(ValueError):
+        module.update(template, "latest", 1795000000, engines)

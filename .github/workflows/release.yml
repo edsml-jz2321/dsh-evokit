@@ -1,11 +1,13 @@
 name: Release artifacts
 
 # Pushing a tag vX.Y.Z builds once, then publishes the same files to PyPI, npm
-# and a GitHub Release, and server.json to the official MCP Registry after PyPI.
+# and a GitHub Release, server.json to the official MCP Registry after PyPI,
+# and the DSH plugin index on gh-pages after npm (CI never pushes to main).
 # Each publish job fails on its own and any failure marks the whole run failed.
 # Every publish job can be rerun safely: PyPI skips files that already exist,
 # npm skips a version already published with the same tarball, the GitHub
-# Release is updated in place, and a version already in the registry is skipped.
+# Release is updated in place, a version already in the registry is skipped,
+# and an index that already lists the version is left unchanged.
 
 on:
   push:
@@ -207,3 +209,93 @@ jobs:
           fi
           ./mcp-publisher login github-oidc
           ./mcp-publisher publish server.json
+
+  update-dsh-index:
+    # Point the DSH plugin index on gh-pages at the version just published to
+    # npm, validated with DSH's own format-1 validator, then rebuild Pages.
+    # main's market/index.json is only the template; gh-pages is the published copy.
+    needs: publish-npm
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pages: write
+    env:
+      MARKET_INDEX_VALIDATOR: '@deepseek-ai/dsh-plugin-market-index@0.2.2-rc.4'
+      INDEX_URL: https://edsml-jz2321.github.io/dsh-evokit/index.json
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: pages
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Wait for the npm publish time of this version
+        run: |
+          python3 - <<'PY'
+          import datetime, json, os, time, urllib.request
+          version = os.environ["GITHUB_REF_NAME"][1:]
+          for attempt in range(40):
+              try:
+                  with urllib.request.urlopen("https://registry.npmjs.org/dsh-evokit", timeout=30) as response:
+                      published = json.load(response).get("time", {}).get(version)
+              except Exception as error:
+                  published = None
+                  print(f"attempt {attempt + 1}: {error}")
+              if published:
+                  stamp = int(datetime.datetime.fromisoformat(published.replace("Z", "+00:00")).timestamp())
+                  print(f"npm published dsh-evokit {version} at {published} ({stamp})")
+                  with open(os.environ["GITHUB_ENV"], "a") as env:
+                      env.write(f"PUBLISH_TIMESTAMP={stamp}\n")
+                  break
+              time.sleep(15)
+          else:
+              raise SystemExit(f"npm has no publish time for dsh-evokit {version}")
+          PY
+      - name: Update and validate the index
+        run: |
+          set -euo pipefail
+          python3 scripts/update_market.py pages/index.json --version "${GITHUB_REF_NAME#v}" --timestamp "$PUBLISH_TIMESTAMP"
+          validator="$RUNNER_TEMP/validator"
+          mkdir -p "$validator"
+          npm install --prefix "$validator" --no-save --no-audit --no-fund --ignore-scripts "$MARKET_INDEX_VALIDATOR"
+          cp scripts/validate_market.mjs "$validator/"
+          node "$validator/validate_market.mjs" pages/index.json "$INDEX_URL"
+          git -C pages diff --stat
+      - name: Commit and push gh-pages
+        run: |
+          set -euo pipefail
+          cd pages
+          if git diff --quiet -- index.json; then
+            echo "gh-pages index.json already lists this version."
+          else
+            git -c user.name=quei -c user.email=91019057+edsml-jz2321@users.noreply.github.com \
+              commit -m "List plugin ${GITHUB_REF_NAME#v}" -- index.json
+            git push origin HEAD:gh-pages
+          fi
+      - name: Request a Pages build
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api --method POST "repos/${GITHUB_REPOSITORY}/pages/builds" || echo "::warning::Pages build request failed; the push may still trigger a build."
+      - name: Wait until the published index serves this version
+        run: |
+          python3 - <<'PY'
+          import json, os, time, urllib.request
+          version = os.environ["GITHUB_REF_NAME"][1:]
+          for attempt in range(40):
+              try:
+                  url = f"{os.environ['INDEX_URL']}?release={version}&attempt={attempt}"
+                  with urllib.request.urlopen(url, timeout=30) as response:
+                      index = json.load(response)
+                  listed = [v["version"] for p in index["plugins"] for v in p["versions"]]
+                  if version in listed:
+                      print(f"{os.environ['INDEX_URL']} serves {listed}")
+                      break
+                  print(f"attempt {attempt + 1}: serves {listed}")
+              except Exception as error:
+                  print(f"attempt {attempt + 1}: {error}")
+              time.sleep(15)
+          else:
+              raise SystemExit("GitHub Pages did not serve the new version in time")
+          PY

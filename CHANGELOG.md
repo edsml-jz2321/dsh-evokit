@@ -13,7 +13,9 @@
   reports the group.
 - Releases are automated: a `v*` tag publishes to PyPI, to npm through Trusted
   Publishing, to a GitHub Release with the changelog section, and to the official
-  MCP Registry. Add `server.json` for the registry, kept at the package version.
+  MCP Registry, then points the DSH plugin index on GitHub Pages at the new npm
+  version after validating it with DSH's format-1 validator. Add `server.json`
+  for the registry, kept at the package version.
 
 ## v0.1.7
 
