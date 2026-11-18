@@ -1,6 +1,6 @@
 {
   "name": "dsh-evokit",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "type": "module",
   "files": [
     "cordis.patch.yml",
@@ -10,7 +10,7 @@
     "skills"
   ],
   "engines": {
-    "dsh": "0.2.2-rc.1"
+    "dsh": ">=0.2.2-rc.1 <0.3.0-0"
   },
   "dsh": {
     "bundle": {

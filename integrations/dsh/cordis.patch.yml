@@ -4,9 +4,10 @@
       config:
         serverName: evokit
         transport: stdio
-        command: !!js process.env.EVOKIT_MCP_COMMAND
+        # Defaults: `evokit` from PATH, and the directory where DSH starts.
+        command: !!js process.env.EVOKIT_MCP_COMMAND || 'evokit'
         args: [mcp]
-        cwd: !!js process.env.EVOKIT_WORKSPACE
+        cwd: !!js process.env.EVOKIT_WORKSPACE || process.cwd()
         startupTimeoutMs: 30000
         toolCallTimeoutMs: 300000
         failOnStartupError: true
@@ -17,5 +18,6 @@
       config:
         providerName: evokit
         includeDefaultRoots: false
-        customSkillDirs: !!js "[process.env.EVOKIT_SKILL_ROOT]"
+        # Default: this bundle's own skills, installed in the profile directory (ctx.baseUrl).
+        customSkillDirs: !!js "[process.env.EVOKIT_SKILL_ROOT || process.getBuiltinModule('node:url').fileURLToPath(new URL('node_modules/dsh-evokit/skills', ctx.baseUrl))]"
         watch: false
