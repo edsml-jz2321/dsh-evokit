@@ -28,6 +28,7 @@ constraint-dependencies = ["fastmcp-slim==4.0.0b1"]
 
 [project.scripts]
 evokit = "evokit.cli:main"
+dsh-evokit = "evokit.cli:main"
 
 [dependency-groups]
 dev = ["pytest>=8.3,<10", "ruff>=0.11,<1", "build>=1.2,<2"]

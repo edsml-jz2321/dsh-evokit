@@ -20,10 +20,19 @@ parser.add_argument("--mcp-schema", type=Path)
 options = parser.parse_args()
 root = Path(__file__).resolve().parents[1]
 version = tomllib.loads((root / "pyproject.toml").read_text())["project"]["version"]
-for name in ("plugin.json", "integrations/dsh/plugin.json", "integrations/dsh/package.json"):
+for name in (
+    "plugin.json",
+    "package.json",
+    "integrations/dsh/plugin.json",
+    "integrations/dsh/package.json",
+):
     assert json.loads((root / name).read_text())["version"] == version, name
 wheel = next((root / "dist").glob("dsh_evokit-*.whl"))
 with zipfile.ZipFile(wheel) as archive:
+    entry_points = next(name for name in archive.namelist() if name.endswith("entry_points.txt"))
+    console = archive.read(entry_points).decode()
+    for script in ("evokit", "dsh-evokit"):
+        assert f"{script} = evokit.cli:main" in console, script
     schema = json.loads(archive.read("evokit/proposal.schema.json"))
     jsonschema.Draft202012Validator.check_schema(schema)
     for name in ("evolve", "onboard", "meta"):

@@ -4,6 +4,7 @@ import json
 import os
 import shutil
 import subprocess
+import tomllib
 from pathlib import Path
 
 import pytest
@@ -23,6 +24,30 @@ def test_bundle_metadata_and_skills():
     for name in ("onboard", "evolve", "meta"):
         relative = f"skills/{name}/SKILL.md"
         assert (bundle / relative).read_bytes() == (root / relative).read_bytes()
+
+
+def test_root_manifest_matches_bundle():
+    """The repository root is detectable as the same DSH bundle but is never published."""
+    root = Path(__file__).resolve().parents[1]
+    bundle = root / "integrations/dsh"
+    native = json.loads((bundle / "package.json").read_text())
+    top = json.loads((root / "package.json").read_text())
+    for key in ("name", "version", "engines", "keywords", "license"):
+        assert top[key] == native[key], key
+    assert not top.get("private", False)
+    assert "prepublishOnly" in top["scripts"]
+    patch = (root / top["dsh"]["bundle"]["patch"]).resolve()
+    assert patch == (bundle / native["dsh"]["bundle"]["patch"]).resolve() and patch.is_file()
+    assert {"skills", "integrations/dsh/cordis.patch.yml"} <= set(top["files"])
+    for name in ("onboard", "evolve", "meta"):
+        assert (root / "skills" / name / "SKILL.md").is_file()
+
+
+def test_console_scripts_share_the_cli():
+    """`uvx dsh-evokit mcp` and `evokit mcp` start the same entry point."""
+    root = Path(__file__).resolve().parents[1]
+    scripts = tomllib.loads((root / "pyproject.toml").read_text())["project"]["scripts"]
+    assert scripts == {"evokit": "evokit.cli:main", "dsh-evokit": "evokit.cli:main"}
 
 
 def _bundle_expressions():
