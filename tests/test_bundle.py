@@ -167,7 +167,9 @@ def test_release_workflow_publishes_everything_from_one_build():
 
 def test_market_update_changes_only_the_version_entry():
     root = Path(__file__).resolve().parents[1]
-    spec = importlib.util.spec_from_file_location("update_market", root / "scripts/update_market.py")
+    spec = importlib.util.spec_from_file_location(
+        "update_market", root / "scripts/update_market.py"
+    )
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     template = (root / "market/index.json").read_text(encoding="utf-8")
