@@ -23,3 +23,7 @@ All tests use synthetic data and local fake services. Never add real credentials
 private tasks, runtime state or paid model calls. Scenarios execute trusted code.
 Keep local experiments in ignored directories; retain only reproducible evidence
 that is safe to share. Record user-visible changes in CHANGELOG.md.
+
+## Releasing
+
+Pushing a tag `vX.Y.Z` builds the wheel, sdist and DSH bundle, and publishes the wheel and sdist to PyPI through Trusted Publishing (`release.yml`, environment `pypi`; no token is stored). Publish the DSH bundle to npm separately, and create the GitHub Release from the same build.

@@ -35,3 +35,24 @@ jobs:
           name: release-${{ github.ref_name }}
           path: dist/*
           if-no-files-found: error
+
+  publish-pypi:
+    # PyPI Trusted Publishing: no token is stored anywhere. PyPI trusts this
+    # workflow file in this repository, running in the `pypi` environment.
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/project/dsh-evokit/
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-${{ github.ref_name }}
+          path: dist
+      - name: Keep only the Python distributions
+        run: |
+          find dist -type f ! -name '*.whl' ! -name '*.tar.gz' -delete
+          ls -l dist
+      - uses: pypa/gh-action-pypi-publish@release/v1
