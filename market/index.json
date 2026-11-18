@@ -32,13 +32,13 @@
       },
       "versions": [
         {
-          "version": "0.1.6",
-          "publishTimestamp": 1794982569,
+          "version": "0.1.7",
+          "publishTimestamp": 1794987767,
           "source": {
             "type": "npm"
           },
           "engines": {
-            "dsh": "0.2.2-rc.1"
+            "dsh": ">=0.2.2-rc.1 <0.3.0-0"
           }
         }
       ]
