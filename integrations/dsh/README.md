@@ -7,13 +7,13 @@ uses Windows. Other platforms remain unverified.
 
 ## Install in an isolated profile
 
-Download and verify `dsh_evokit-0.1.5-py3-none-any.whl`,
-`dsh-evokit-0.1.5.tgz` and `SHA256SUMS` from the planned
+Download and verify `dsh_evokit-0.1.6-py3-none-any.whl`,
+`dsh-evokit-0.1.6.tgz` and `SHA256SUMS` from the planned
 [release page](https://github.com/edsml-jz2321/dsh-evokit/releases).
 From PowerShell, with an existing scenario at `./my-system`:
 
 ```powershell
-uv tool install ./dsh_evokit-0.1.5-py3-none-any.whl
+uv tool install ./dsh_evokit-0.1.6-py3-none-any.whl
 $env:EVOKIT_MCP_COMMAND = (Get-Command evokit).Source
 $env:EVOKIT_WORKSPACE = (Resolve-Path ./my-system).Path
 $env:DSH_HOME = Join-Path (Get-Location) 'private-dsh/home'
@@ -22,7 +22,7 @@ $env:HOME = $env:DSH_HOME
 $env:USERPROFILE = $env:DSH_HOME
 $env:DSH_TELEMETRY_DISABLED = '1'
 $env:DSH_TELEMETRY_MODE = 'DISABLED'
-dsh plugin --profile evokit add ./dsh-evokit-0.1.5.tgz
+dsh plugin --profile evokit add ./dsh-evokit-0.1.6.tgz
 $env:EVOKIT_SKILL_ROOT = Join-Path $env:DSH_HOME 'profiles/evokit/node_modules/dsh-evokit/skills'
 dsh plugin --profile evokit list
 dsh --profile evokit --dump-config

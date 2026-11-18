@@ -16,7 +16,7 @@
           thinkingFormat: deepseek
         models:
           - id: deepseek-improver
-            contextWindow: 128000
+            contextWindow: 524288
             maxTokens: 32768
             input: [text]
             reasoningEfforts: {high: high}

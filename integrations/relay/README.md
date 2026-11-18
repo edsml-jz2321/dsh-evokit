@@ -3,7 +3,8 @@
 Use this relay when your host speaks OpenAI Chat Completions but cannot share a
 file-key pool, apply Qwen cache hints, or enforce a campaign budget itself. It
 has no provider defaults and does not read environment credentials. Evokit's
-core works without it. Run it from a source checkout with evokit installed.
+core works without it. Since v0.1.6 the wheel includes `evokit.relay`;
+the source entry point delegates to that implementation.
 
 Create a private directory for state, keys, the allowlist and a local client
 token. Protect these paths with your OS permissions before launch. Give the
@@ -93,11 +94,16 @@ context limits and prices with your own provider before enabling requests.
 
 ## Accounting and caching
 
-Admission reserves the full configured input/output upper bounds at uncached
-rates. Pending requests count against the budget, including concurrent requests.
-The relay refuses payloads whose serialized byte count plus 8192 exceeds the
-input bound. Configure bounds for the actual model context and total completion
-limit, including reasoning; the wire limit alone does not prove a billing bound.
+Admission reserves the configured token input bound or serialized wire bytes
+plus 8192, whichever is larger, and the full output bound at uncached rates.
+Pending requests count against the budget, including concurrent requests.
+`request_bytes` independently bounds serialized JSON (default 4×input_tokens+8192).
+The HTTP handler and wire admission both enforce that byte bound. It is not a
+tokenizer or a provider context estimate. Configure the actual client context
+and completion limit, including reasoning, separately. The native improver
+profile uses 524288 context tokens and 32768 output tokens; the example relay
+allows 1048576 JSON bytes. A larger byte allowance raises conservative financial
+reservation where needed; it does not silently reduce token reservations.
 Responses settle from validated usage even if the provider exceeds the requested
 output limit. Monetary overruns stop later admissions after preserving known cost.
 

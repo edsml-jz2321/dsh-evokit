@@ -1,5 +1,23 @@
 # Changelog
 
+## v0.1.6
+
+- List the author as quei. Documentation and package metadata are English only.
+
+- Ship the optional accounting relay in the Python wheel. Separate JSON
+  byte admission from token context and conservatively reserve against both.
+- Configure native DSH improver context at 524288 tokens with bounded 32768-token
+  output; expose validated client-limit construction for other host profiles.
+- Add periodic publication and bounded final publication retry, including real
+  Windows deny-delete recovery without re-executing evaluations.
+- Add operator-only circuit reset prerequisites and archived reset evidence;
+  preserve reservations, settled cost and circuit thresholds.
+- Add exactly-once prior-attempt cost/model/wall-time restoration. Missing wall
+  time is explicitly a lower bound, never presented as complete latency.
+- Add domain-validated completed-response caching with explicit stop metadata,
+  revalidation of legacy records, and quarantined rejected/unvalidated replies.
+  Transport remains responsible for settlement before content validation.
+
 ## v0.1.5
 
 - Add generic paired-defined secondary comparisons, explicit both-undefined

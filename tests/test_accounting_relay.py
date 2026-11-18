@@ -110,6 +110,80 @@ def body(stream=False):
     }
 
 
+def test_json_byte_admission_is_separate_from_client_token_context(setup, upstream):
+    config, root = setup
+    policy = config["models"]["qwen-test"]
+    policy.update(
+        input_tokens=524288, request_bytes=1048576, input_per_million=1, output_per_million=1
+    )
+    config["budget"] = 10
+    relay = relay_module.Relay(config, root)
+    server = relay.server()
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    request = body()
+    request["messages"][-1]["content"] = "a" * 575802
+    try:
+        ok(upstream)
+        data = json.dumps(request).encode()
+        call = urllib.request.Request(
+            f"http://127.0.0.1:{server.server_port}/v1/chat/completions",
+            data=data,
+            headers={
+                "Authorization": "Bearer fake-local-token",
+                "Content-Type": "application/json",
+            },
+        )
+        with urllib.request.urlopen(call) as response:
+            assert response.status == 200
+        start = next(r for r in relay.rows if r["kind"] == "start")
+        assert Decimal(start["reserve"]) > Decimal(".575802")
+        before = len(upstream.calls)
+        request["messages"][-1]["content"] = "x" * 1048576
+        with pytest.raises(ValueError, match="JSON byte"):
+            relay.transact(request)
+        assert len(upstream.calls) == before
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join()
+        relay.close()
+
+
+def test_operator_circuit_reset_keeps_costs_and_refuses_unknown_usage(setup, monkeypatch):
+    config, root = setup
+    relay = relay_module.Relay(config, root)
+
+    def disconnected(*args, **kwargs):
+        raise ConnectionResetError("fake transport")
+
+    monkeypatch.setattr(relay.opener, "open", disconnected)
+    try:
+        for _ in range(3):
+            with pytest.raises(ValueError, match="Transport failure"):
+                relay.transact(body())
+        before = relay._committed()
+        assert (root / "STOP.json").exists()
+        with pytest.raises(ValueError):
+            relay.reset_circuit(reason="verified", probe_successes=1, probe_time=0)
+        record = relay.reset_circuit(
+            reason="accounted and direct probes passed",
+            probe_successes=1,
+            probe_time=__import__("time").time(),
+        )
+        assert relay._committed() == before and record["thresholds_unchanged"]
+        with pytest.raises(ValueError, match="Transport failure"):
+            relay.transact(body())
+        assert not (root / "STOP.json").exists()
+        relay._stop("unknown_usage")
+        with pytest.raises(ValueError):
+            relay.reset_circuit(
+                reason="verified", probe_successes=1, probe_time=__import__("time").time()
+            )
+    finally:
+        relay.close()
+
+
 def ok(server, value=None):
     server.responses.append((200, {}, json.dumps(response() if value is None else value).encode()))
 

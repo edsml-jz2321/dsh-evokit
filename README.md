@@ -15,8 +15,8 @@ The loop is **diagnose → propose → paired experiment → noise-aware gate �
 Requires Python 3.11+, uv, DSH `0.2.2-rc.1`, and its pnpm prerequisite. Windows is the verified local platform; Linux/macOS runtime integration remains unverified. Download the wheel, bundle and `SHA256SUMS` from [Releases](https://github.com/edsml-jz2321/dsh-evokit/releases) after publication and compare their SHA-256 hashes before installing.
 
 ```console
-uv tool install ./dsh_evokit-0.1.5-py3-none-any.whl
-dsh plugin --profile evokit add ./dsh-evokit-0.1.5.tgz
+uv tool install ./dsh_evokit-0.1.6-py3-none-any.whl
+dsh plugin --profile evokit add ./dsh-evokit-0.1.6.tgz
 dsh plugin --profile evokit list
 ```
 
@@ -49,4 +49,4 @@ Set budgets, anchors, noise policy and a stopping rule before experiments. Repea
 
 Scenarios run trusted executable code. Per-task directories are not a security sandbox. Protect sealed tasks and records with OS permissions; MCP filtering cannot hide files an improver can read directly. Review proposed changes for task literals and leakage. The relay accounts reported usage conservatively; it cannot guarantee provider billing or prevent every external cost.
 
-See [concepts](docs/concepts.md), [tools](docs/tools.md), [storage](docs/storage.md) and [contributing](CONTRIBUTING.md). This project uses the [MIT license](LICENSE), Copyright (c) 2026 quei.
+See [concepts](docs/concepts.md), [tools](docs/tools.md), [storage](docs/storage.md), [caching and recovery](docs/caching.md) and [contributing](CONTRIBUTING.md). This project uses the [MIT license](LICENSE), Copyright (c) 2026 quei.

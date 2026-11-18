@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "dsh-evokit"
-version = "0.1.5"
+version = "0.1.6"
 description = "Domain-neutral, pluggable self-evolution experiments"
 readme = "README.md"
 license = "MIT"
@@ -57,4 +57,4 @@ Documentation = "https://github.com/edsml-jz2321/dsh-evokit#readme"
 Issues = "https://github.com/edsml-jz2321/dsh-evokit/issues"
 
 [tool.hatch.build.targets.sdist]
-include = ["src", "tests", "docs", "skills", "examples", "integrations", "scripts", "market", "README.md", "README.zh.md", "CONTRIBUTING.md", "CHANGELOG.md", "LICENSE", "pyproject.toml", "uv.lock", "plugin.json", "mcp.json"]
+include = ["src", "tests", "docs", "skills", "examples", "integrations", "scripts", "market", "README.md", "CONTRIBUTING.md", "CHANGELOG.md", "LICENSE", "pyproject.toml", "uv.lock", "plugin.json", "mcp.json"]
