@@ -1,8 +1,10 @@
 {
   "name": "dsh-evokit",
-  "version": "0.1.8",
+  "version": "0.1.10",
   "description": "Measured self-improvement: paired experiments, noise-aware gates and sealed confirmation.",
+  "main": "integrations/dsh/index.cjs",
   "files": [
+    "integrations/dsh/index.cjs",
     "integrations/dsh/cordis.patch.yml",
     "integrations/dsh/improver.patch.yml",
     "plugin.json",

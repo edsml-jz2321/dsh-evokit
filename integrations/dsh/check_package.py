@@ -21,6 +21,7 @@ if __name__ == "__main__":
             "plugin.json",
             "mcp.json",
             "cordis.patch.yml",
+            "index.cjs",
             "improver.patch.yml",
             "skills/evolve/SKILL.md",
             "skills/onboard/SKILL.md",

@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.1.10
+
+- Give the DSH bundle a resolvable package entry, `index.cjs`, declared as `main` in both the bundle
+  and the repository-root manifest and shipped in the npm tarball. The bundle stays configuration-only:
+  no patch row references the module, so DSH behavior is unchanged.
+- Skip version 0.1.9 so every channel shares one version number.
+
 ## v0.1.8
 
 - Rewrite every MCP tool definition for agents: each description says what the

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "dsh-evokit"
-version = "0.1.8"
+version = "0.1.10"
 description = "Domain-neutral, pluggable self-evolution experiments"
 readme = "README.md"
 license = "MIT"

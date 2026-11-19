@@ -16,9 +16,11 @@ def test_bundle_metadata_and_skills():
     root = Path(__file__).resolve().parents[1]
     bundle = root / "integrations/dsh"
     package = json.loads((bundle / "package.json").read_text())
-    assert package["name"] == "dsh-evokit" and package["version"] == "0.1.8"
+    assert package["name"] == "dsh-evokit" and package["version"] == "0.1.10"
     assert not package.get("private", False)
     assert package["dsh"]["bundle"]["patch"] == "./cordis.patch.yml"
+    assert package["main"] == "index.cjs" and "index.cjs" in package["files"]
+    assert (bundle / package["main"]).is_file()
     assert package["engines"]["dsh"] == ">=0.2.2-rc.1 <0.3.0-0"
     for name in ("plugin.json", "mcp.json"):
         assert json.loads((bundle / name).read_text()) == json.loads((root / name).read_text())
@@ -40,6 +42,8 @@ def test_root_manifest_matches_bundle():
     patch = (root / top["dsh"]["bundle"]["patch"]).resolve()
     assert patch == (bundle / native["dsh"]["bundle"]["patch"]).resolve() and patch.is_file()
     assert {"skills", "integrations/dsh/cordis.patch.yml"} <= set(top["files"])
+    assert top["main"] == "integrations/dsh/index.cjs" and top["main"] in top["files"]
+    assert (root / top["main"]).is_file()
     for name in ("onboard", "evolve", "meta"):
         assert (root / "skills" / name / "SKILL.md").is_file()
 
