@@ -1,6 +1,6 @@
 {
   "name": "dsh-evokit",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "description": "Measured self-improvement: paired experiments, noise-aware gates and sealed confirmation.",
   "main": "integrations/dsh/index.cjs",
   "files": [
@@ -15,7 +15,7 @@
     "prepublishOnly": "node -e \"console.error('Publish the DSH bundle from integrations/dsh, not the repository root.'); process.exit(1)\""
   },
   "engines": {
-    "dsh": ">=0.2.2-rc.1 <0.3.0-0"
+    "dsh": ">=0.2.2-rc.1"
   },
   "dsh": {
     "bundle": {

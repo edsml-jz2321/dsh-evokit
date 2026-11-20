@@ -1,7 +1,7 @@
 """Point a DSH plugin index (format 1) at one published npm version.
 
 Usage: python scripts/update_market.py INDEX --version 0.1.8 --timestamp 1795000000
-       [--engines ">=0.2.2-rc.1 <0.3.0-0"] [--package integrations/dsh/package.json]
+       [--engines ">=0.2.2-rc.1"] [--package integrations/dsh/package.json]
 
 Only the single `versions` entry of the `dsh-evokit` plugin changes; every other
 byte of the file is kept (the file is stored as two-space JSON with a final

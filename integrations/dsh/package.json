@@ -1,6 +1,6 @@
 {
   "name": "dsh-evokit",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "type": "module",
   "main": "index.cjs",
   "files": [
@@ -12,7 +12,7 @@
     "skills"
   ],
   "engines": {
-    "dsh": ">=0.2.2-rc.1 <0.3.0-0"
+    "dsh": ">=0.2.2-rc.1"
   },
   "dsh": {
     "bundle": {

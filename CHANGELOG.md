@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.1.11
+
+- Set only a lower bound for DSH: the bundle's `engines.dsh` is now `>=0.2.2-rc.1`, without the
+  `<0.3.0-0` cap, so later DSH releases, 0.3 and beyond included, can install it without a new
+  evokit release. Releases after 0.2.2-rc.4 are accepted but not verified.
+- Add a standard `mcpServers` block to the README for MCP clients other than DSH
+  (`uvx dsh-evokit mcp`), so directories that read the README can import the server.
+
 ## v0.1.10
 
 - Give the DSH bundle a resolvable package entry, `index.cjs`, declared as `main` in both the bundle

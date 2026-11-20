@@ -24,8 +24,8 @@ install Python.
 
 ## Quick install
 
-Requires Python 3.11+, uv, Node 24, DSH `>=0.2.2-rc.1 <0.3.0-0` (0.2.2-rc.1 and later
-0.2.x releases, not 0.3) and DSH's pnpm prerequisite. Windows is the verified
+Requires Python 3.11+, uv, Node 24, DSH 0.2.2-rc.1 or later (`>=0.2.2-rc.1`, no upper bound;
+checked on 0.2.2-rc.1 and 0.2.2-rc.4, later releases unverified) and DSH's pnpm prerequisite. Windows is the verified
 platform; Linux and macOS runtime integration remains unverified.
 
 ```console
@@ -39,12 +39,12 @@ Run the last command from your scenario directory. `EVOKIT_MCP_COMMAND`, `EVOKIT
 ## Install in an isolated profile
 
 Verified alternative from release files: download and verify
-`dsh_evokit-0.1.10-py3-none-any.whl`, `dsh-evokit-0.1.10.tgz` and `SHA256SUMS` from the
+`dsh_evokit-0.1.11-py3-none-any.whl`, `dsh-evokit-0.1.11.tgz` and `SHA256SUMS` from the
 [release page](https://github.com/edsml-jz2321/dsh-evokit/releases).
 From PowerShell, with an existing scenario at `./my-system`:
 
 ```powershell
-uv tool install ./dsh_evokit-0.1.10-py3-none-any.whl
+uv tool install ./dsh_evokit-0.1.11-py3-none-any.whl
 $env:EVOKIT_WORKSPACE = (Resolve-Path ./my-system).Path  # optional; defaults to the directory where dsh starts
 $env:DSH_HOME = Join-Path (Get-Location) 'private-dsh/home'
 $env:DSH_AGENTS_HOME = Join-Path (Get-Location) 'private-dsh/agents'
@@ -52,7 +52,7 @@ $env:HOME = $env:DSH_HOME
 $env:USERPROFILE = $env:DSH_HOME
 $env:DSH_TELEMETRY_DISABLED = '1'
 $env:DSH_TELEMETRY_MODE = 'DISABLED'
-dsh plugin --profile evokit add ./dsh-evokit-0.1.10.tgz
+dsh plugin --profile evokit add ./dsh-evokit-0.1.11.tgz
 dsh plugin --profile evokit list
 dsh --profile evokit --dump-config
 ```

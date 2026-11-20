@@ -7,7 +7,7 @@
     "url": "https://github.com/edsml-jz2321/dsh-evokit",
     "source": "github"
   },
-  "version": "0.1.10",
+  "version": "0.1.11",
   "websiteUrl": "https://github.com/edsml-jz2321/dsh-evokit#readme",
   "icons": [
     {
@@ -20,7 +20,7 @@
       "registryType": "pypi",
       "registryBaseUrl": "https://pypi.org",
       "identifier": "dsh-evokit",
-      "version": "0.1.10",
+      "version": "0.1.11",
       "runtimeHint": "uvx",
       "transport": {
         "type": "stdio"
