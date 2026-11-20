@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Set only a lower bound for DSH: the bundle's `engines.dsh` is now `>=0.2.2-rc.1`, without the
+  `<0.3.0-0` cap, so later DSH releases, 0.3 and beyond included, can install it without a new
+  evokit release. Releases after 0.2.2-rc.4 are accepted but not verified.
+
 ## v0.1.10
 
 - Give the DSH bundle a resolvable package entry, `index.cjs`, declared as `main` in both the bundle

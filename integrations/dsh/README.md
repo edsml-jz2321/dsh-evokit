@@ -24,8 +24,8 @@ install Python.
 
 ## Quick install
 
-Requires Python 3.11+, uv, Node 24, DSH `>=0.2.2-rc.1 <0.3.0-0` (0.2.2-rc.1 and later
-0.2.x releases, not 0.3) and DSH's pnpm prerequisite. Windows is the verified
+Requires Python 3.11+, uv, Node 24, DSH `>=0.2.2-rc.1` or later (no upper bound;
+checked on 0.2.2-rc.1 and 0.2.2-rc.4, later releases unverified) and DSH's pnpm prerequisite. Windows is the verified
 platform; Linux and macOS runtime integration remains unverified.
 
 ```console

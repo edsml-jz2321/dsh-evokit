@@ -21,7 +21,8 @@ def test_bundle_metadata_and_skills():
     assert package["dsh"]["bundle"]["patch"] == "./cordis.patch.yml"
     assert package["main"] == "index.cjs" and "index.cjs" in package["files"]
     assert (bundle / package["main"]).is_file()
-    assert package["engines"]["dsh"] == ">=0.2.2-rc.1 <0.3.0-0"
+    assert package["engines"]["dsh"] == ">=0.2.2-rc.1"
+    assert "<" not in package["engines"]["dsh"]  # lower bound only; no cap on future DSH releases
     for name in ("plugin.json", "mcp.json"):
         assert json.loads((bundle / name).read_text()) == json.loads((root / name).read_text())
     for name in ("onboard", "evolve", "meta"):
