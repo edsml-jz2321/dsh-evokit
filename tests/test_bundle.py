@@ -16,7 +16,7 @@ def test_bundle_metadata_and_skills():
     root = Path(__file__).resolve().parents[1]
     bundle = root / "integrations/dsh"
     package = json.loads((bundle / "package.json").read_text())
-    assert package["name"] == "dsh-evokit" and package["version"] == "0.1.10"
+    assert package["name"] == "dsh-evokit" and package["version"] == "0.1.11"
     assert not package.get("private", False)
     assert package["dsh"]["bundle"]["patch"] == "./cordis.patch.yml"
     assert package["main"] == "index.cjs" and "index.cjs" in package["files"]

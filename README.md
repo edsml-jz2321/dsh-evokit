@@ -24,7 +24,7 @@ Use it as a DeepSeek Harness (DSH) plugin, or through its Python SDK, CLI and MC
 
 ## Install
 
-Requires Python 3.11+, uv, Node 24, DSH `>=0.2.2-rc.1` or later (no upper bound; checked on 0.2.2-rc.1 and 0.2.2-rc.4, later releases unverified) and DSH's pnpm prerequisite. Windows is the verified platform; Linux and macOS runtime integration remains unverified.
+Requires Python 3.11+, uv, Node 24, DSH 0.2.2-rc.1 or later (`>=0.2.2-rc.1`, no upper bound; checked on 0.2.2-rc.1 and 0.2.2-rc.4, later releases unverified) and DSH's pnpm prerequisite. Windows is the verified platform; Linux and macOS runtime integration remains unverified.
 
 ```console
 dsh plugin --profile evokit add dsh-evokit
@@ -37,12 +37,27 @@ Run the last command from your scenario directory. `EVOKIT_MCP_COMMAND`, `EVOKIT
 Verified alternative: download the wheel, bundle and `SHA256SUMS` from [Releases](https://github.com/edsml-jz2321/dsh-evokit/releases), compare their SHA-256 hashes, then install the files:
 
 ```console
-uv tool install ./dsh_evokit-0.1.10-py3-none-any.whl
-dsh plugin --profile evokit add ./dsh-evokit-0.1.10.tgz
+uv tool install ./dsh_evokit-0.1.11-py3-none-any.whl
+dsh plugin --profile evokit add ./dsh-evokit-0.1.11.tgz
 dsh plugin --profile evokit list
 ```
 
 See the [DSH guide](integrations/dsh/README.md) for an isolated profile and exact PowerShell commands.
+
+Other MCP clients start the same server with uvx:
+
+```json
+{
+  "mcpServers": {
+    "evokit": {
+      "command": "uvx",
+      "args": ["dsh-evokit", "mcp"]
+    }
+  }
+}
+```
+
+Every tool takes the scenario path as `config`, so the server needs no particular working directory. This starts the default improver profile; give the operator its own `--profile operator` server (see [tools](docs/tools.md)).
 
 Configure the improver model in your DSH profile using **your own provider key** and your provider's supported model name. Keep the key in DSH's local credential settings or a process environment variable, never in this repository. The optional [relay](integrations/relay/README.md) supports file-based keys and accounting; adapt its example endpoint, model identity and illustrative prices before use. No key is included or required for the offline example. Installing or listing the plugin makes no model requests; starting evolution may incur provider charges.
 

@@ -1,6 +1,6 @@
 {
   "name": "dsh-evokit",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "description": "Measured self-improvement: paired experiments, noise-aware gates and sealed confirmation.",
   "main": "integrations/dsh/index.cjs",
   "files": [
