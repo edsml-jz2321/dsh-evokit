@@ -6,6 +6,8 @@ description: Measured self-improvement with paired experiments and a DSH plugin.
 
 # evokit
 
+[![edsml-jz2321/dsh-evokit MCP server](https://glama.ai/mcp/servers/edsml-jz2321/dsh-evokit/badges/score.svg)](https://glama.ai/mcp/servers/edsml-jz2321/dsh-evokit)
+
 evokit improves the editable parts of an AI system (prompts, skills, code, configuration) and keeps a change only when measurements show it helps.
 
 **How it differs.** A proposed change is adopted only after:
